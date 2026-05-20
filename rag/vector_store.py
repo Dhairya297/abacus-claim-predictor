@@ -1,11 +1,14 @@
 import faiss
 import pickle
 import numpy as np
+import boto3
+import tempfile
+import pickle
+import io
 
 from utils.logger import logger
 from config.settings import FAISS_INDEX_PATH,METADATA_PATH
 from config.error_codes import ErrorCode
-
 
 class VectorStore:
 
@@ -47,21 +50,22 @@ class VectorStore:
             raise RuntimeError(ErrorCode.VECTOR_STORE_ERROR) from e
 
     def load_vector_store(self):
-
         try:
-            self.index = faiss.read_index(
-                FAISS_INDEX_PATH
-            )
-            with open(
-                METADATA_PATH,
-                "rb"
-            ) as file:
+            logger.info("Downloading FAISS index and metadata from S3.")
+            s3 = boto3.client("s3", region_name="us-east-1")
+            S3_BUCKET = "abacus-claim-predictor"
+            
+            faiss_obj = s3.get_object(Bucket=S3_BUCKET, Key="artifacts/rag/faiss.index")
+            with tempfile.NamedTemporaryFile(suffix=".index", delete=False) as tmp:
+                tmp.write(faiss_obj["Body"].read())
+                tmp_path = tmp.name
 
-                self.metadata = pickle.load(
-                    file
-                )
+            self.index = faiss.read_index(tmp_path)
+            logger.info("FAISS index loaded from S3.")
 
-            logger.info("Vector store loaded.")
+            meta_obj = s3.get_object(Bucket=S3_BUCKET, Key="artifacts/rag/metadata.pkl")
+            self.metadata = pickle.load(io.BytesIO(meta_obj["Body"].read()))
+            logger.info("Metadata loaded from S3.")
 
         except Exception as e:
             logger.exception("Vector store loading failed.")
