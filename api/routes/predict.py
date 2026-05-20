@@ -4,6 +4,8 @@ import pandas as pd
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
 from utils.s3_logger import log_prediction, log_error
+import boto3
+import io
 
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent.parent)
 
@@ -16,10 +18,24 @@ from api.services.orchestration_service import ClaimOrchestrator
 
 router = APIRouter()
 
-diagnosis_df = pd.read_csv(os.path.join(PROJECT_ROOT, "data", "diagnosis.csv"))
-providers_df = pd.read_csv(os.path.join(PROJECT_ROOT, "data", "providers_1000.csv"))
-cost_df = pd.read_csv(os.path.join(PROJECT_ROOT, "data", "cost.csv"))
-historical_claims_df = pd.read_csv(os.path.join(PROJECT_ROOT, "data", "claims_1000.csv"))
+S3_BUCKET = "abacus-claim-predictor"
+def load_csv_from_s3(key: str) -> pd.DataFrame:
+    """Download a CSV from S3 and return as DataFrame."""
+    try:
+        s3 = boto3.client("s3", region_name="us-east-1")
+        obj = s3.get_object(Bucket=S3_BUCKET, Key=key)
+        return pd.read_csv(io.BytesIO(obj["Body"].read()))
+    except Exception as e:
+        # Fallback to local path for development
+        local_path = os.path.join(PROJECT_ROOT, key)
+        if os.path.exists(local_path):
+            return pd.read_csv(local_path)
+        raise FileNotFoundError(f"Could not load {key} from S3 or locally: {e}")
+
+diagnosis_df = load_csv_from_s3("data/diagnosis.csv")
+providers_df = load_csv_from_s3("data/providers_1000.csv")
+cost_df = load_csv_from_s3("data/cost.csv")
+historical_claims_df = load_csv_from_s3("data/claims_1000.csv")
 
 orchestrator = ClaimOrchestrator(
     diagnosis_df=diagnosis_df,
