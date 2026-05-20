@@ -3,35 +3,17 @@ import sys
 import pandas as pd
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
-from utils.s3_loader import log_prediction, log_error
-import boto3
-import io
+from utils.s3_loader import load_csv_from_s3, log_prediction, log_error
 
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent.parent)
-
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from api.schemas.request_schema import ClaimRequest
 from api.schemas.response_schema import ClaimResponse
 from api.services.orchestration_service import ClaimOrchestrator
-from utils.s3_loader import load_csv_from_s3
 
 router = APIRouter()
-
-S3_BUCKET = "abacus-claim-predictor"
-def load_csv_from_s3(key: str) -> pd.DataFrame:
-    """Download a CSV from S3 and return as DataFrame."""
-    try:
-        s3 = boto3.client("s3", region_name="us-east-1")
-        obj = s3.get_object(Bucket=S3_BUCKET, Key=key)
-        return pd.read_csv(io.BytesIO(obj["Body"].read()))
-    except Exception as e:
-        # Fallback to local path for development
-        local_path = os.path.join(PROJECT_ROOT, key)
-        if os.path.exists(local_path):
-            return pd.read_csv(local_path)
-        raise FileNotFoundError(f"Could not load {key} from S3 or locally: {e}")
 
 diagnosis_df = load_csv_from_s3("data/diagnosis.csv")
 providers_df = load_csv_from_s3("data/providers_1000.csv")
