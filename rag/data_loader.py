@@ -1,7 +1,5 @@
 import os
 import sys
-import fitz
-import docx
 
 from config.settings import PROJECT_ROOT
 import sys
