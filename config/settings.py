@@ -38,7 +38,7 @@ else:
 OPENAI_MODEL = "gpt-4o-mini"
 
 # ── EMBEDDING MODEL ───────────────────────────────────────────
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+EMBEDDING_MODEL = "text-embedding-3-small"
 
 # ── CHUNKING ──────────────────────────────────────────────────
 CHUNK_SIZE    = 500
