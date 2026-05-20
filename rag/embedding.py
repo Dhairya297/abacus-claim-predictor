@@ -1,10 +1,10 @@
 from openai import OpenAI
+from config.settings import OPENAI_API_KEY
 from utils.logger import logger
 from config.error_codes import ErrorCode
 from config.settings import EMBEDDING_MODEL
-import boto3
-import json
-
+from config.settings import OPENAI_API_KEY
+api_key = OPENAI_API_KEY
 
 class EmbeddingGenerator:
     _client = None
@@ -15,18 +15,7 @@ class EmbeddingGenerator:
                 logger.info("Loading OpenAI embedding client.")
 
                 # Fetch API key from AWS Secrets Manager
-                secret_name = "openai_api_key"  # change if needed
-                region_name = "us-east-1"       # change if needed
-
-                session = boto3.session.Session()
-                client = session.client(service_name="secretsmanager", region_name=region_name)
-
-                secret_value = client.get_secret_value(SecretId=secret_name)
-                secret = json.loads(secret_value["SecretString"])
-                api_key = secret["api_key"]
-
                 EmbeddingGenerator._client = OpenAI(api_key=api_key)
-
                 logger.info("OpenAI client initialized.")
 
             self.client = EmbeddingGenerator._client
