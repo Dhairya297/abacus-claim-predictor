@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
-from utils.s3_logger import log_prediction, log_error
+from utils.s3_loader import log_prediction, log_error
 import boto3
 import io
 
@@ -15,6 +15,7 @@ if PROJECT_ROOT not in sys.path:
 from api.schemas.request_schema import ClaimRequest
 from api.schemas.response_schema import ClaimResponse
 from api.services.orchestration_service import ClaimOrchestrator
+from utils.s3_loader import load_csv_from_s3
 
 router = APIRouter()
 

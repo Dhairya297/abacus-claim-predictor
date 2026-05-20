@@ -1,58 +1,91 @@
 import os
 from pathlib import Path
-import boto3
 import json
+import boto3
+from dotenv import load_dotenv
 
-# ── PROJECT ROOT ──────────────────────────────────────────────
+# ─────────────────────────────────────────────
+# PROJECT ROOT
+# ─────────────────────────────────────────────
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 
-# ── ENVIRONMENT DETECTION ─────────────────────────────────────
+# ─────────────────────────────────────────────
+# ENVIRONMENT DETECTION
+# ─────────────────────────────────────────────
 IS_DATABRICKS = os.path.exists(
     "/Workspace/Users/dhairyashimpi@gmail.com/Abacus Intern Project"
 )
+
 IS_AWS = os.environ.get("DEPLOYMENT_ENV") == "aws"
 IS_LOCAL = not IS_DATABRICKS and not IS_AWS
 
-# ── OPENAI ────────────────────────────────────────────────────
+# ─────────────────────────────────────────────
+# LOAD .ENV EARLY (SAFE FOR LOCAL + EC2)
+# ─────────────────────────────────────────────
+if IS_LOCAL or IS_DATABRICKS:
+    load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
+
+# ─────────────────────────────────────────────
+# AWS SECRETS HELPER
+# ─────────────────────────────────────────────
 def get_secret(secret_name: str) -> dict:
-    """Fetch secrets from AWS Secrets Manager — only called on AWS."""
     client = boto3.client("secretsmanager", region_name="us-east-1")
     response = client.get_secret_value(SecretId=secret_name)
     return json.loads(response["SecretString"])
 
-if IS_AWS:
-    # Production — fetch from Secrets Manager
-    _secrets       = get_secret("abacus/openai")
-    OPENAI_API_KEY = _secrets["OPENAI_API_KEY"]
-else:
-    # Local — fetch from .env file (never committed to git)
-    from dotenv import load_dotenv
-    load_dotenv()
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    if not OPENAI_API_KEY:
+# ─────────────────────────────────────────────
+# OPENAI KEY LOADING (ROBUST)
+# ─────────────────────────────────────────────
+def get_openai_key():
+    # 1. AWS production
+    if IS_AWS:
+        secrets = get_secret("abacus/openai")
+        return secrets["OPENAI_API_KEY"]
+
+    # 2. Local / Databricks
+    key = os.getenv("OPENAI_API_KEY")
+
+    if not key:
         raise ValueError(
-            "OPENAI_API_KEY not found. "
-            "Create a .env file in project root with: OPENAI_API_KEY=sk-..."
+            "OPENAI_API_KEY not found.\n"
+            "Fix options:\n"
+            "1. Create .env file in project root\n"
+            "2. OR set environment variable OPENAI_API_KEY\n"
         )
 
-OPENAI_MODEL = "gpt-4o-mini"
+    return key
 
-# ── EMBEDDING MODEL ───────────────────────────────────────────
+
+OPENAI_API_KEY = get_openai_key()
+
+# ─────────────────────────────────────────────
+# MODELS
+# ─────────────────────────────────────────────
+OPENAI_MODEL = "gpt-4o-mini"
 EMBEDDING_MODEL = "text-embedding-3-small"
 
-# ── CHUNKING ──────────────────────────────────────────────────
-CHUNK_SIZE    = 500
+# ─────────────────────────────────────────────
+# CHUNKING
+# ─────────────────────────────────────────────
+CHUNK_SIZE = 500
 CHUNK_OVERLAP = 100
 
-# ── RETRIEVAL ─────────────────────────────────────────────────
+# ─────────────────────────────────────────────
+# RETRIEVAL
+# ─────────────────────────────────────────────
 TOP_K = 5
 
-# ── PATHS ─────────────────────────────────────────────────────
-POLICY_DOC_PATH  = os.path.join(PROJECT_ROOT, "data", "policy_documents.txt")
+# ─────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────
+POLICY_DOC_PATH = os.path.join(PROJECT_ROOT, "data", "policy_documents.txt")
 FAISS_INDEX_PATH = os.path.join(PROJECT_ROOT, "artifacts", "rag", "faiss.index")
-METADATA_PATH    = os.path.join(PROJECT_ROOT, "artifacts", "rag", "metadata.pkl")
+METADATA_PATH = os.path.join(PROJECT_ROOT, "artifacts", "rag", "metadata.pkl")
 
-# ── LOGGING ───────────────────────────────────────────────────
-LOG_DIR  = os.path.join(PROJECT_ROOT, "logs")
+# ─────────────────────────────────────────────
+# LOGGING
+# ─────────────────────────────────────────────
+LOG_DIR = os.path.join(PROJECT_ROOT, "logs")
 LOG_FILE = os.path.join(LOG_DIR, "rag_pipeline.log")
+
 os.makedirs(LOG_DIR, exist_ok=True)

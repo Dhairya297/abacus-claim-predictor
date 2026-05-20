@@ -12,17 +12,16 @@ if PROJECT_ROOT not in sys.path:
 
 from ml_training.prediction import PredictionEngine
 from utils.logger import logger
+from utils.s3_loader import load_pickle_from_s3
 
 class PredictionService:
 
     def __init__(self):
         logger.info("Loading ML artifacts.")
-        bucket = "abacus-claim-predictor"
-        self.model      = load_from_s3(bucket, "artifacts/models/claim_denial_xgboost_model.pkl")
-        self.explainer  = load_from_s3(bucket, "artifacts/models/claim_denial_shap_explainer.pkl")
-        self.thresholds = load_from_s3(bucket, "artifacts/models/claim_denial_thresholds.pkl")
-        self.feature_columns = load_from_s3(bucket, "artifacts/models/feature_columns.pkl")
-
+        self.model           = load_pickle_from_s3("artifacts/models/claim_denial_xgboost_model.pkl")
+        self.explainer       = load_pickle_from_s3("artifacts/models/claim_denial_shap_explainer.pkl")
+        self.thresholds      = load_pickle_from_s3("artifacts/models/claim_denial_thresholds.pkl")
+        self.feature_columns = load_pickle_from_s3("artifacts/models/feature_columns.pkl")
         logger.info("ML artifacts loaded successfully.")
 
     def predict(self, feature_df):
