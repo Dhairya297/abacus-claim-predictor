@@ -1,11 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from api.routes.predict import router as predict_router
 
-app = FastAPI(title="ClaimIQ API")
+app = FastAPI(title="Healthcare Claim AI System", version="1.0.0")
 
-# IMPORTANT
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,5 +15,5 @@ app.add_middleware(
 app.include_router(predict_router)
 
 @app.get("/")
-def root():
-    return {"message": "ClaimIQ API running"}
+def health_check():
+    return {"status": "running"}

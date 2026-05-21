@@ -1,12 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from api.routes.predict import router as predict_router
 
-app = FastAPI(
-    title="Healthcare Claim AI System",
-    version="1.0.0"
-)
+app = FastAPI(title="Healthcare Claim AI System", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
