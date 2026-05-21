@@ -1,6 +1,6 @@
 {
   "billing_analyst": {
-    "password": "$2b$12$9lqNw7WJ7r9h1zq3QnB9k.uF2VY4A3NQ8A2sU5hN6w8XqjV0zK6aS",   // abacus2024
+    "password": "$2b$12$9lqNw7WJ7r9h1zq3QnB9k.uF2VY4A3NQ8A2sU5hN6w8XqjV0zK6aS",
     "role": "billing_analyst",
     "name": "Billing Analyst"
   }
