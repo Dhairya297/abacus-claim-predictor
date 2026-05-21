@@ -1002,8 +1002,11 @@ window.addEventListener('load', () => {
 });
 
 // ── Login modal inject
-function showLoginModal() {
+function showLoginModal(mode = 'login') {
   if (document.getElementById('login-overlay')) return;
+
+  const isSignup = mode === 'signup';
+
   const overlay = document.createElement('div');
   overlay.id = 'login-overlay';
   overlay.style.cssText = `
@@ -1011,6 +1014,7 @@ function showLoginModal() {
     background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);
     display:flex;align-items:center;justify-content:center;
   `;
+
   overlay.innerHTML = `
     <div id="login-box" style="
       background:var(--surface);border:1px solid var(--border2);
@@ -1022,7 +1026,9 @@ function showLoginModal() {
           <span style="width:10px;height:10px;border-radius:50%;background:var(--accent2);display:inline-block;animation:pulse-dot 2s infinite;"></span>
           ClaimCheck AI
         </div>
-        <div style="font-size:0.82rem;color:var(--text3);margin-top:0.4rem;letter-spacing:1px;text-transform:uppercase;">Secure Access Portal</div>
+        <div id="auth-title" style="font-size:0.82rem;color:var(--text3);margin-top:0.4rem;letter-spacing:1px;text-transform:uppercase;">
+          ${isSignup ? 'Create Account' : 'Secure Access Portal'}
+        </div>
       </div>
 
       <div style="margin-bottom:1rem;">
@@ -1033,11 +1039,11 @@ function showLoginModal() {
                  padding:0.65rem 0.9rem;outline:none;transition:border-color 0.2s;"
           onfocus="this.style.borderColor='var(--accent)'"
           onblur="this.style.borderColor='var(--border)'"
-          onkeydown="if(event.key==='Enter')doLogin()"
+          onkeydown="if(event.key==='Enter')doAuth()"
         >
       </div>
 
-      <div style="margin-bottom:1.5rem;">
+      <div style="margin-bottom:1rem;">
         <label style="display:block;font-size:0.78rem;font-weight:500;color:var(--text2);margin-bottom:0.4rem;">Password</label>
         <input id="login-password" type="password" placeholder="••••••••"
           style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;
@@ -1045,7 +1051,19 @@ function showLoginModal() {
                  padding:0.65rem 0.9rem;outline:none;transition:border-color 0.2s;"
           onfocus="this.style.borderColor='var(--accent)'"
           onblur="this.style.borderColor='var(--border)'"
-          onkeydown="if(event.key==='Enter')doLogin()"
+          onkeydown="if(event.key==='Enter')doAuth()"
+        >
+      </div>
+
+      <div id="confirm-wrap" style="margin-bottom:1rem; display:${isSignup ? 'block' : 'none'};">
+        <label style="display:block;font-size:0.78rem;font-weight:500;color:var(--text2);margin-bottom:0.4rem;">Confirm Password</label>
+        <input id="login-confirm-password" type="password" placeholder="••••••••"
+          style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+                 color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;
+                 padding:0.65rem 0.9rem;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='var(--accent)'"
+          onblur="this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter')doAuth()"
         >
       </div>
 
@@ -1056,47 +1074,75 @@ function showLoginModal() {
         font-size:0.82rem;margin-bottom:1rem;
       "></div>
 
-      <button id="login-btn" onclick="doLogin()" style="
+      <button id="login-btn" onclick="doAuth()" style="
         width:100%;padding:0.85rem;background:var(--accent);
         color:#fff;border:none;border-radius:10px;
         font-family:'Syne',sans-serif;font-size:0.92rem;font-weight:700;
         cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
-      ">Sign In →</button>
+      ">${isSignup ? 'Create Account →' : 'Sign In →'}</button>
 
-      <div style="text-align:center;margin-top:1.2rem;font-size:0.75rem;color:var(--text3);">
-        🔐 Role: <span style="color:var(--accent2)">billing_analyst</span>
+      <div style="text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--text3);">
+        ${isSignup
+          ? `Already have an account? <a href="#" onclick="switchAuthMode('login'); return false;" style="color:var(--accent2);text-decoration:none;">Sign in</a>`
+          : `Don't have an account? <a href="#" onclick="switchAuthMode('signup'); return false;" style="color:var(--accent2);text-decoration:none;">Sign up</a>`
+        }
       </div>
     </div>
   `;
+
   document.body.appendChild(overlay);
   setTimeout(() => document.getElementById('login-username')?.focus(), 100);
 }
 
-async function doLogin() {
+function switchAuthMode(mode) {
+  document.getElementById('login-overlay')?.remove();
+  showLoginModal(mode);
+}
+
+async function doAuth() {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
-  const errBox   = document.getElementById('login-error');
-  const btn      = document.getElementById('login-btn');
+  const confirmPasswordEl = document.getElementById('login-confirm-password');
+  const confirmPassword = confirmPasswordEl ? confirmPasswordEl.value : '';
+  const errBox = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+  const isSignup = !!confirmPasswordEl;
 
   if (!username || !password) {
-    showLoginError('Please enter username and password.'); return;
+    showLoginError('Please enter username and password.');
+    return;
   }
 
-  btn.textContent = 'Signing in…';
-  btn.disabled    = true;
+  if (isSignup && !confirmPassword) {
+    showLoginError('Please confirm your password.');
+    return;
+  }
+
+  if (isSignup && password !== confirmPassword) {
+    showLoginError('Passwords do not match.');
+    return;
+  }
+
+  btn.textContent = isSignup ? 'Creating account…' : 'Signing in…';
+  btn.disabled = true;
   errBox.style.display = 'none';
 
   try {
-    const resp = await fetch(LOGIN_URL, {
+    const url = isSignup ? (BASE_URL + '/auth/signup') : LOGIN_URL;
+    const body = isSignup
+      ? { username, password, confirm_password: confirmPassword }
+      : { username, password };
+
+    const resp = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify(body),
       signal: AbortSignal.timeout(10000),
     });
 
     if (!resp.ok) {
       const err = await resp.json();
-      showLoginError(err.detail || 'Login failed.');
+      showLoginError(err.detail || (isSignup ? 'Signup failed.' : 'Login failed.'));
       return;
     }
 
@@ -1104,15 +1150,14 @@ async function doLogin() {
     setToken(data.access_token);
     setUser({ name: data.name, role: data.role, username });
 
-    // Remove modal
     document.getElementById('login-overlay')?.remove();
     applyLoggedInState();
 
-  } catch(e) {
+  } catch (e) {
     showLoginError(e.name === 'TimeoutError' ? 'Server not responding.' : `Error: ${e.message}`);
   } finally {
-    btn.textContent = 'Sign In →';
-    btn.disabled    = false;
+    btn.textContent = isSignup ? 'Create Account →' : 'Sign In →';
+    btn.disabled = false;
   }
 }
 
