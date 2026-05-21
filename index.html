@@ -1102,11 +1102,16 @@ function switchAuthMode(mode) {
 async function doAuth() {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
-  const confirmPasswordEl = document.getElementById('login-confirm-password');
-  const confirmPassword = confirmPasswordEl ? confirmPasswordEl.value : '';
+  const confirmPasswordEl =
+    document.getElementById('login-confirm-password');
+
+  const confirmPassword =
+    confirmPasswordEl ? confirmPasswordEl.value : '';
+
+  const isSignup =
+    document.getElementById('confirm-wrap').style.display !== 'none';
   const errBox = document.getElementById('login-error');
   const btn = document.getElementById('login-btn');
-  const isSignup = !!confirmPasswordEl;
 
   if (!username || !password) {
     showLoginError('Please enter username and password.');
