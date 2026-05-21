@@ -4,6 +4,8 @@ import pandas as pd
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
 from utils.s3_loader import load_csv_from_s3, log_prediction, log_error
+from fastapi import APIRouter, HTTPException, Depends
+from api.auth.dependencies import require_billing_analyst
 
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent.parent)
 if PROJECT_ROOT not in sys.path:
@@ -28,16 +30,18 @@ orchestrator = ClaimOrchestrator(
 )
 
 @router.post("/predict-claim", response_model=ClaimResponse)
-async def predict_claim(request: ClaimRequest):
+async def predict_claim(
+    request: ClaimRequest,
+    user: dict = Depends(require_billing_analyst)
+):
     try:
         payload = request.model_dump() if hasattr(request, "model_dump") else request.dict()
         result = orchestrator.process_claim(payload)
         log_prediction(payload["claim_id"], payload, result)
         if result is None:
             raise ValueError("process_claim returned None")
-
         return result
-
+    
     except Exception as e:
         import traceback
         traceback.print_exc()
