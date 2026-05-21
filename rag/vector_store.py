@@ -54,7 +54,7 @@ class VectorStore:
             logger.info("Downloading FAISS index and metadata from S3.")
             s3 = boto3.client("s3", region_name="us-east-1")
             S3_BUCKET = "abacus-claim-predictor"
-            
+
             faiss_obj = s3.get_object(Bucket=S3_BUCKET, Key="artifacts/rag/faiss.index")
             with tempfile.NamedTemporaryFile(suffix=".index", delete=False) as tmp:
                 tmp.write(faiss_obj["Body"].read())
@@ -95,12 +95,13 @@ class VectorStore:
 
                 chunk = self.metadata[idx]
                 results.append({
-                    "rank": rank + 1,
-                    "distance": float(distances[0][rank]),
-                    "chunk_text": chunk["chunk_text"],
-                    "section_title": chunk["section_title"],
-                    "parent_id": chunk["parent_id"],
-                    "child_id": chunk["child_id"]
+                    "rank":          rank + 1,
+                    "distance":      float(distances[0][rank]),
+                    "chunk_text":    chunk["chunk_text"],
+                    "section_title": chunk.get("section_title", "UNKNOWN"),
+                    "source_file":   chunk.get("source_file", "UNKNOWN"),
+                    "parent_id":     chunk.get("parent_id", ""),
+                    "chunk_id":      chunk.get("chunk_id", ""),
                 })
 
             return results
