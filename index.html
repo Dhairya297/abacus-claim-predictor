@@ -732,6 +732,92 @@
     .nav-links .nav-link:not(.active) { display: none; }
     .section { padding: 3rem 1.2rem; }
   }
+  /* ── History page ── */
+.filter-btn {
+  padding: 0.35rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text2);
+  font-size: 0.78rem; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn:hover { border-color: var(--border2); color: var(--text); }
+.filter-btn.active {
+  background: var(--accent-glow);
+  border-color: var(--border2);
+  color: var(--accent);
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.history-table th {
+  text-align: left;
+  font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text3);
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.history-table td {
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text2);
+  vertical-align: middle;
+}
+.history-row {
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.history-row:hover { background: var(--surface2); }
+.history-row td { height: 52px; }
+
+.expand-row td {
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+}
+.expand-content {
+  display: none;
+  padding: 1.4rem 1.5rem;
+  background: var(--bg2);
+  animation: card-in 0.25s ease both;
+}
+.expand-content.open { display: block; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+.detail-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+}
+.detail-label {
+  font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 0.3rem;
+}
+.detail-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem; font-weight: 700;
+  color: var(--text);
+}
+.reasons-list { margin-top: 1rem; }
+.reason-chip {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.83rem; color: var(--text2);
+}
+.reason-chip:last-child { border-bottom: none; }
 </style>
 </head>
 <body>
@@ -746,6 +832,7 @@
     <div class="nav-link active" id="nav-home" onclick="showPage('home')">Home</div>
     <div class="nav-link" id="nav-how" onclick="showPage('home'); setTimeout(() => {document.getElementById('features-section').scrollIntoView({ behavior: 'smooth' });}, 100);">How It Works</div>
     <!-- <div class="nav-link" id="nav-claim" onclick="showPage('claim')">Check Claim</div> -->
+    <div class="nav-link" id="nav-history" onclick="showPage('history')">History</div>
     <button class="nav-cta" onclick="showPage('claim')">⚡ Analyse Now</button>
     <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" role="button" aria-label="Toggle dark/light mode">
       <span class="theme-icon theme-icon-moon" style="color:#8da4c8">🌙</span>
@@ -867,7 +954,7 @@
       <div style="width:1px;height:20px;background:var(--border);margin-left:18px;"></div>
       <div style="display:flex;gap:1.2rem;align-items:flex-start;">
         <div style="width:36px;height:36px;border-radius:10px;background:var(--accent-glow);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent);flex-shrink:0;">2</div>
-        <div><div style="font-weight:600;margin-bottom:4px;">XML Prediction</div><div style="font-size:0.85rem;color:var(--text2);line-height:1.6;">Model loaded predicts denial probability. SHAP values identify the top contributing features.</div></div>
+        <div><div style="font-weight:600;margin-bottom:4px;">ML Prediction</div><div style="font-size:0.85rem;color:var(--text2);line-height:1.6;">Model loaded predicts denial probability. SHAP values identify the top contributing features.</div></div>
       </div>
       <div style="width:1px;height:20px;background:var(--border);margin-left:18px;"></div>
       <div style="display:flex;gap:1.2rem;align-items:flex-start;">
@@ -1021,7 +1108,7 @@ function showLoginModal(mode = 'login') {
           ClaimCheck AI
         </div>
         <div id="auth-title" style="font-size:0.82rem;color:var(--text3);margin-top:0.4rem;letter-spacing:1px;text-transform:uppercase;">
-          ${isSignup ? 'Create Account' : 'Secure Access Portal'}
+          ${isSignup ? 'Create Account' : ''}
         </div>
       </div>
 
@@ -1247,6 +1334,7 @@ function showPage(name){
   const nl = document.getElementById('nav-'+name);
   if(nl) nl.classList.add('active');
   window.scrollTo(0,0);
+  if (name === 'history') loadHistory();   // ← auto-load when tab opens
 }
 
 // ── API health check
@@ -1463,6 +1551,243 @@ function showResults(data){
   document.getElementById('results-panel').innerHTML = html;
 }
 
+// ── History ────────────────────────────────────────────────
+let allHistory   = [];
+let activeFilter = 'all';
+
+async function loadHistory() {
+  if (!getToken()) { showLoginModal(); return; }
+
+  document.getElementById('history-container').innerHTML = `
+    <div style="text-align:center;padding:4rem 2rem;color:var(--text3);font-size:0.88rem;">
+      <div class="spinner" style="margin:0 auto 1rem;"></div>
+      Loading claim history from S3…
+    </div>`;
+
+  try {
+    const resp = await fetch(BASE_URL + '/history', {
+      headers: { 'Authorization': 'Bearer ' + getToken() },
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (resp.status === 401) { clearToken(); showLoginModal(); return; }
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+    allHistory = await resp.json();
+    renderHistory();
+
+  } catch(e) {
+    document.getElementById('history-container').innerHTML = `
+      <div class="error-card">⚠ Failed to load history: ${e.message}</div>`;
+  }
+}
+
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('filter-' + f).classList.add('active');
+  renderHistory();
+}
+
+function renderHistory() {
+  let records = allHistory;
+
+  if (activeFilter === 'denied') {
+    records = records.filter(r => {
+      const pred = (r.result?.prediction || '').toUpperCase();
+      return pred.includes('DENIED');
+    });
+  } else if (activeFilter === 'approved') {
+    records = records.filter(r => {
+      const risk = (r.result?.risk_level || '').toUpperCase();
+      return risk === 'LOW';
+    });
+  }
+
+  document.getElementById('history-count').textContent =
+    `${records.length} record${records.length !== 1 ? 's' : ''}`;
+
+  if (!records.length) {
+    document.getElementById('history-container').innerHTML = `
+      <div style="text-align:center;padding:4rem 2rem;
+                  background:var(--surface);border:1px dashed var(--border2);border-radius:14px;">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">📭</div>
+        <div style="color:var(--text3);font-size:0.88rem;">No claims found for this filter.</div>
+      </div>`;
+    return;
+  }
+
+  let html = `
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Claim ID</th>
+          <th>Date</th>
+          <th>Provider</th>
+          <th>Verdict</th>
+          <th>Risk Score</th>
+          <th>Run By</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  records.forEach((r, i) => {
+    const result   = r.result   || {};
+    const payload  = r.payload  || {};
+    const pred     = result.prediction || '—';
+    const risk     = (result.risk_level || 'LOW').toUpperCase();
+    const score    = parseFloat(result.risk_score || 0).toFixed(1);
+    const ts       = r.timestamp ? r.timestamp.replace('T', ' ').slice(0, 16) + ' UTC' : '—';
+    const isDenied = pred.toUpperCase().includes('DENIED');
+
+    const verdictColor = isDenied ? 'var(--danger)' : 'var(--success)';
+    const riskClass    = risk === 'HIGH' ? 'risk-high' : risk === 'MEDIUM' ? 'risk-medium' : 'risk-low';
+    const scoreColor   = score >= 70 ? 'var(--danger)' : score >= 40 ? 'var(--warn)' : 'var(--success)';
+
+    html += `
+    <tr class="history-row" onclick="toggleExpand(${i})">
+      <td><span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--text);">${r.claim_id || '—'}</span></td>
+      <td>${ts}</td>
+      <td>${payload.provider_id || '—'}</td>
+      <td><span style="font-weight:600;color:${verdictColor};">${pred}</span></td>
+      <td>
+        <span style="font-weight:700;color:${scoreColor};">${score}%</span>
+        <span class="risk-badge-pill ${riskClass}" style="margin-left:6px;font-size:0.65rem;">${risk}</span>
+      </td>
+      <td style="color:var(--text3);">${r.user || '—'}</td>
+      <td style="text-align:right;padding-right:1.2rem;">
+        <span id="chevron-${i}" style="color:var(--text3);font-size:0.8rem;transition:transform 0.2s;display:inline-block;">▶</span>
+      </td>
+    </tr>
+    <tr class="expand-row">
+      <td colspan="7">
+        <div class="expand-content" id="expand-${i}">
+          ${renderExpandDetail(r)}
+        </div>
+      </td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+  document.getElementById('history-container').innerHTML = html;
+}
+
+function toggleExpand(i) {
+  const content  = document.getElementById('expand-' + i);
+  const chevron  = document.getElementById('chevron-' + i);
+  const isOpen   = content.classList.contains('open');
+
+  // Close all others
+  document.querySelectorAll('.expand-content').forEach(c => c.classList.remove('open'));
+  document.querySelectorAll('[id^="chevron-"]').forEach(c => {
+    c.style.transform = 'rotate(0deg)';
+  });
+
+  if (!isOpen) {
+    content.classList.add('open');
+    chevron.style.transform = 'rotate(90deg)';
+  }
+}
+
+function renderExpandDetail(r) {
+  const result  = r.result  || {};
+  const payload = r.payload || {};
+  const score   = parseFloat(result.risk_score || 0).toFixed(1);
+  const scoreColor = score >= 70 ? 'var(--danger)' : score >= 40 ? 'var(--warn)' : 'var(--success)';
+
+  let html = `<div class="detail-grid">
+    <div class="detail-card">
+      <div class="detail-label">Billed Amount</div>
+      <div class="detail-value">$${(payload.billed_amount||0).toLocaleString()}</div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-label">Diagnosis Code</div>
+      <div class="detail-value">${payload.diagnosis_code || '—'}</div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-label">Procedure Code</div>
+      <div class="detail-value">${payload.procedure_code || '—'}</div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-label">Risk Score</div>
+      <div class="detail-value" style="color:${scoreColor}">${score}%</div>
+    </div>
+  </div>`;
+
+  const reasons = result.top_reasons || [];
+  if (reasons.length) {
+    html += `<div style="background:var(--surface);border:1px solid var(--border);
+                         border-radius:10px;padding:1rem 1.2rem;">
+      <div class="detail-label" style="margin-bottom:0.6rem;">Denial Reasons</div>
+      <div class="reasons-list">`;
+    reasons.forEach((r2, i) => {
+      html += `<div class="reason-chip">
+        <span style="min-width:20px;height:20px;background:var(--accent-glow);
+                     border:1px solid var(--border2);border-radius:5px;
+                     display:flex;align-items:center;justify-content:center;
+                     font-size:0.7rem;font-weight:700;color:var(--accent);">${i+1}</span>
+        ${r2.business_reason || r2.feature || '—'}
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  const next = result.next_action || '';
+  if (next) {
+    html += `<div style="margin-top:1rem;background:rgba(251,191,36,0.05);
+                         border:1px solid rgba(251,191,36,0.2);border-radius:8px;
+                         padding:0.9rem 1.1rem;">
+      <div class="detail-label" style="color:var(--warn);margin-bottom:0.3rem;">⚡ Next Action</div>
+      <div style="font-size:0.85rem;color:var(--text2);">${next}</div>
+    </div>`;
+  }
+
+  return html;
+}
 </script>
+
+<!-- ══════════════════════════════════════ HISTORY PAGE ══════════════════════════════════════ -->
+<div class="page" id="page-history">
+  <div style="max-width:1100px;margin:0 auto;padding:2.5rem 2rem 4rem;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;
+                padding-bottom:1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;">
+      <h2 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;
+                 letter-spacing:-0.5px;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:1.4rem">📋</span> Claim History
+      </h2>
+      <button onclick="loadHistory()" style="
+        display:flex;align-items:center;gap:6px;
+        padding:0.45rem 1rem;
+        background:var(--accent-glow);border:1px solid var(--border2);
+        border-radius:8px;color:var(--accent);
+        font-size:0.82rem;font-weight:600;cursor:pointer;
+        transition:all 0.2s;
+      ">↻ Refresh</button>
+    </div>
+
+    <!-- Filter bar -->
+    <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <span style="font-size:0.75rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;">Filter:</span>
+      <button class="filter-btn active" id="filter-all"      onclick="setFilter('all')">All</button>
+      <button class="filter-btn"        id="filter-denied"   onclick="setFilter('denied')">Denied</button>
+      <button class="filter-btn"        id="filter-approved" onclick="setFilter('approved')">Approved</button>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+        <span id="history-count" style="font-size:0.78rem;color:var(--text3);"></span>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div id="history-container">
+      <div style="text-align:center;padding:4rem 2rem;color:var(--text3);font-size:0.88rem;">
+        Loading claim history…
+      </div>
+    </div>
+
+  </div>
+</div>
 </body>
 </html>
