@@ -1126,23 +1126,14 @@ function showLoginModal(mode = 'login') {
 
       <div style="margin-bottom:1rem;">
         <label style="display:block;font-size:0.78rem;font-weight:500;color:var(--text2);margin-bottom:0.4rem;">Password</label>
-        <div style="position:relative;">
-          <input id="login-password" type="password" placeholder="password"
-            style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;
-                  color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;
-                  padding:0.65rem 2.5rem 0.65rem 0.9rem;outline:none;transition:border-color 0.2s;"
-            onfocus="this.style.borderColor='var(--accent)'"
-            onblur="this.style.borderColor='var(--border)'"
-            onkeydown="if(event.key==='Enter')doAuth()"
-          >
-          <span onclick="togglePasswordVisibility('login-password', this)"
-            style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);
-                  cursor:pointer;font-size:1rem;color:var(--text3);user-select:none;
-                  transition:color 0.2s;"
-            onmouseover="this.style.color='var(--accent)'"
-            onmouseout="this.style.color='var(--text3)'"
-            title="Show/hide password">👁</span>
-        </div>
+        <input id="login-password" type="password" placeholder="password"
+          style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+                 color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;
+                 padding:0.65rem 0.9rem;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='var(--accent)'"
+          onblur="this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter')doAuth()"
+        >
       </div>
       <div id="password-rules" style="
         display:${isSignup ? 'block' : 'none'};
@@ -1161,24 +1152,14 @@ function showLoginModal(mode = 'login') {
       </div>
       <div id="confirm-wrap" style="margin-bottom:1rem; display:${isSignup ? 'block' : 'none'};">
         <label style="display:block;font-size:0.78rem;font-weight:500;color:var(--text2);margin-bottom:0.4rem;">Confirm Password</label>
-        <div style="position:relative;">
-          <input id="login-confirm-password" type="password" placeholder="Confirm Password"
-            style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;
-                  color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;
-                  padding:0.65rem 2.5rem 0.65rem 0.9rem;outline:none;transition:border-color 0.2s;"
-            onfocus="this.style.borderColor='var(--accent)'"
-            onblur="this.style.borderColor='var(--border)'"
-            onkeydown="if(event.key==='Enter')doAuth()"
-          >
-          <span onclick="togglePasswordVisibility('login-confirm-password', this)"
-            style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);
-                  cursor:pointer;font-size:1rem;color:var(--text3);user-select:none;
-                  transition:color 0.2s;"
-            onmouseover="this.style.color='var(--accent)'"
-            onmouseout="this.style.color='var(--text3)'"
-            title="Show/hide password">👁</span>
-        </div>
-      </div>
+        <input id="login-confirm-password" type="password" placeholder="Confirm Password"
+          style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+                 color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;
+                 padding:0.65rem 0.9rem;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='var(--accent)'"
+          onblur="this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter')doAuth()"
+        >
       </div>
 
       <div id="login-error" style="
@@ -1353,7 +1334,6 @@ function showPage(name){
   const nl = document.getElementById('nav-'+name);
   if(nl) nl.classList.add('active');
   window.scrollTo(0,0);
-  if (name === 'history') loadHistory();   // ← auto-load when tab opens
 }
 
 // ── API health check
@@ -1764,18 +1744,6 @@ function renderExpandDetail(r) {
   }
 
   return html;
-}
-
-function togglePasswordVisibility(inputId, eyeEl) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  if (input.type === 'password') {
-    input.type = 'text';
-    eyeEl.textContent = '🙈';
-  } else {
-    input.type = 'password';
-    eyeEl.textContent = '👁';
-  }
 }
 </script>
 
