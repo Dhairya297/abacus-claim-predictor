@@ -824,33 +824,33 @@
     <div class="features-grid">
       <div class="feat-card">
         <div class="feat-icon">🧠</div>
-        <div class="feat-title">XGBoost + SHAP</div>
-        <div class="feat-desc">Gradient-boosted ML model trained on real claims data, with SHAP explainability showing exactly why each prediction was made.</div>
+        <div class="feat-title">ML Model</div>
+        <div class="feat-desc">ML model trained on real claims data, with SHAP explainability showing exactly why each prediction was made.</div>
       </div>
       <div class="feat-card">
         <div class="feat-icon">📚</div>
-        <div class="feat-title">RAG Policy Engine</div>
-        <div class="feat-desc">FAISS vector index over your policy documents, surfacing relevant rules and regulations for each claim in real-time.</div>
+        <div class="feat-title">Policy Engine</div>
+        <div class="feat-desc">Vector search over your policy documents, surfacing relevant rules and regulations for each claim in real-time.</div>
       </div>
       <div class="feat-card">
         <div class="feat-icon">⚡</div>
         <div class="feat-title">Instant Analysis</div>
-        <div class="feat-desc">FastAPI backend with gunicorn workers delivers predictions in under 2 seconds, even with full pipeline execution.</div>
+        <div class="feat-desc">API backend delivers predictions in under 15 seconds, even with full pipeline execution.</div>
       </div>
       <div class="feat-card">
         <div class="feat-icon">🎯</div>
         <div class="feat-title">Actionable Recommendations</div>
-        <div class="feat-desc">AI-generated, specific corrective actions tied directly to the denial reasons — not generic advice.</div>
+        <div class="feat-desc">AI-generated, specific corrective actions tied directly to the denial reasons.</div>
       </div>
       <div class="feat-card">
         <div class="feat-icon">🔐</div>
-        <div class="feat-title">Secure by Default</div>
-        <div class="feat-desc">Secrets Manager for API keys, IAM roles for S3 access, CloudWatch audit trails. Zero credentials in code.</div>
+        <div class="feat-title">Secure</div>
+        <div class="feat-desc">Secure data management of customers.</div>
       </div>
       <div class="feat-card">
         <div class="feat-icon">📈</div>
-        <div class="feat-title">CloudWatch Monitoring</div>
-        <div class="feat-desc">Real-time CPU/memory metrics, prediction logs to S3, and alerting for error rate spikes — production-ready observability.</div>
+        <div class="feat-title">Monitoring</div>
+        <div class="feat-desc">Real-time monitoring and tracking of each action.</div>
       </div>
     </div>
   </section>
@@ -862,22 +862,22 @@
     <div style="display:flex;flex-direction:column;gap:1rem;max-width:700px;">
       <div style="display:flex;gap:1.2rem;align-items:flex-start;">
         <div style="width:36px;height:36px;border-radius:10px;background:var(--accent-glow);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent);flex-shrink:0;">1</div>
-        <div><div style="font-weight:600;margin-bottom:4px;">Input Feature Pipeline</div><div style="font-size:0.85rem;color:var(--text2);line-height:1.6;">Claim fields (provider ID, diagnosis code, procedure, billed amount) are transformed into model-ready features via RealtimeFeaturePipeline.</div></div>
+        <div><div style="font-weight:600;margin-bottom:4px;">Input Feature Pipeline</div><div style="font-size:0.85rem;color:var(--text2);line-height:1.6;">Claim fields (provider ID, diagnosis code, procedure, billed amount) are transformed into model-ready features. </div></div>
       </div>
       <div style="width:1px;height:20px;background:var(--border);margin-left:18px;"></div>
       <div style="display:flex;gap:1.2rem;align-items:flex-start;">
         <div style="width:36px;height:36px;border-radius:10px;background:var(--accent-glow);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent);flex-shrink:0;">2</div>
-        <div><div style="font-weight:600;margin-bottom:4px;">XGBoost Prediction + SHAP</div><div style="font-size:0.85rem;color:var(--text2);line-height:1.6;">Model loaded from S3 predicts denial probability. SHAP values identify the top contributing features and translate them to human-readable reasons.</div></div>
+        <div><div style="font-weight:600;margin-bottom:4px;">XML Prediction</div><div style="font-size:0.85rem;color:var(--text2);line-height:1.6;">Model loaded predicts denial probability. SHAP values identify the top contributing features.</div></div>
       </div>
       <div style="width:1px;height:20px;background:var(--border);margin-left:18px;"></div>
       <div style="display:flex;gap:1.2rem;align-items:flex-start;">
         <div style="width:36px;height:36px;border-radius:10px;background:var(--accent-glow);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent);flex-shrink:0;">3</div>
-        <div><div style="font-weight:600;margin-bottom:4px;">RAG Policy Lookup</div><div style="font-size:0.85rem;color:var(--text2);line-height:1.6;">FAISS vector search retrieves the most relevant policy chunks. OpenAI GPT summarises them into a concise, claim-specific policy note.</div></div>
+        <div><div style="font-weight:600;margin-bottom:4px;">Policy Lookup</div><div style="font-size:0.85rem;color:var(--text2);line-height:1.6;">Vector search retrieves the most relevant policy chunks. AI summarises them into a concise, claim-specific policy note.</div></div>
       </div>
       <div style="width:1px;height:20px;background:var(--border);margin-left:18px;"></div>
       <div style="display:flex;gap:1.2rem;align-items:flex-start;">
         <div style="width:36px;height:36px;border-radius:10px;background:var(--accent-glow);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent);flex-shrink:0;">4</div>
-        <div><div style="font-weight:600;margin-bottom:4px;">Agent Recommendations</div><div style="font-size:0.85rem;color:var(--text2);line-height:1.6;">An AI agent generates specific corrective actions and next steps, logged to S3 and returned to the Streamlit UI.</div></div>
+        <div><div style="font-weight:600;margin-bottom:4px;">Agent Recommendations</div><div style="font-size:0.85rem;color:var(--text2);line-height:1.6;">An AI agent generates specific corrective actions and next steps.</div></div>
       </div>
     </div>
   </section>
@@ -1414,7 +1414,7 @@ function showResults(data){
     <div class="approved-card">
       <div class="check-anim">✓</div>
       <div class="approved-title">Claim Approved</div>
-      <div class="approved-sub">Low denial risk. This claim meets current policy requirements.</div>
+      <div class="approved-sub">Low denial risk.</div>
     </div>`;
   } else {
     const reasons = data.top_reasons||[];

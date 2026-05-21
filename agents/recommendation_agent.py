@@ -58,6 +58,7 @@ class RecommendationAgent:
                 
                 The string must look exactly like this:
                 "1. First rule here.\n2. Second rule here.\n3. Third rule here."
+                ALWAYS FOLLOW THIS FORMAT
                 
                 NEVER write all points on a single line.
                 NEVER use the literal characters backslash-n — use actual line breaks in the string.
