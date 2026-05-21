@@ -1207,9 +1207,10 @@ function applyLoggedInState() {
       font-size:0.75rem;font-weight:500;color:var(--accent2);
     `;
     badge.innerHTML = `
-      🧑‍💼 <span style="color:var(--text2)">${user.name || 'User'}</span>
-      <span style="color:var(--text3)">·</span>
-      <span style="color:var(--accent)">${user.role || 'Billing Analyst'}</span>
+  🧑‍💼 <span style="color:var(--text2)">
+        ${user.name || user.username || 'User'}
+      </span>
+
       <button onclick="logout()" style="
         margin-left:8px;
         background:rgba(248,113,113,0.12);
@@ -1259,7 +1260,7 @@ async function checkAPI(){
   try{
     const r = await fetch(BASE_URL + '/docs', {method:'GET', signal:AbortSignal.timeout(3000)});
     if(r.ok){
-      document.getElementById('api-status-box').className='api-status api-online';
+      document.getElementById('api-status-box').className='';
       document.getElementById('api-status-text').textContent='FastAPI online · 54.84.210.86:8000';
       document.getElementById('api-badge').innerHTML='<div class="live-dot"></div> API Online';
       document.getElementById('api-badge').style.color='var(--success)';
@@ -1464,20 +1465,11 @@ function showResults(data){
         <div class="next-action-text">${next}</div>
       </div>`;
     }
-
-    html += `<div>
-      <button class="raw-toggle" onclick="toggleRaw(this)">▶ Raw API Response</button>
-      <pre class="raw-json">${JSON.stringify(data,null,2)}</pre>
-    </div>`;
   }
 
   document.getElementById('results-panel').innerHTML = html;
 }
 
-function toggleRaw(btn){
-  const pre = btn.nextElementSibling;
-  pre.style.display = pre.style.display==='block' ? 'none' : 'block';
-}
 </script>
 </body>
 </html>
