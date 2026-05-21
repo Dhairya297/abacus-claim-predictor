@@ -6,10 +6,10 @@ FEATURE_EXPLANATION_MAP = {
         "The billed claim amount influenced the denial risk assessment.",
 
     "amount_to_expected_ratio":
-        "The billed amount exceeds the expected benchmark cost.",
+        "The billed amount and the expected amount significantly vary from each other",
 
     "amount_to_average_ratio":
-        "The billed amount is significantly above the historical average.",
+        "The billed amount and the historical average significantly vary from each other.",
 
     "high_cost_flag":
         "The billed amount is unusually high for this claim type.",
