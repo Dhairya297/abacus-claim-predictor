@@ -1054,7 +1054,21 @@ function showLoginModal(mode = 'login') {
           onkeydown="if(event.key==='Enter')doAuth()"
         >
       </div>
-
+      <div id="password-rules" style="
+        display:${isSignup ? 'block' : 'none'};
+        margin-top:-0.4rem;
+        margin-bottom:1rem;
+        font-size:0.75rem;
+        color:var(--text3);
+        line-height:1.5;
+      ">
+        Password must:
+        <div style="margin-top:0.35rem;padding-left:0.5rem;">
+          • Be at least 6 characters long<br>
+          • Contain letters and numbers recommended<br>
+          • Avoid common/simple passwords
+        </div>
+      </div>
       <div id="confirm-wrap" style="margin-bottom:1rem; display:${isSignup ? 'block' : 'none'};">
         <label style="display:block;font-size:0.78rem;font-weight:500;color:var(--text2);margin-bottom:0.4rem;">Confirm Password</label>
         <input id="login-confirm-password" type="password" placeholder="••••••••"
@@ -1146,9 +1160,15 @@ async function doAuth() {
     });
 
     if (!resp.ok) {
-      const err = await resp.json();
-      showLoginError(err.detail || (isSignup ? 'Signup failed.' : 'Login failed.'));
-      return;
+        const err = await resp.json();
+
+        if (Array.isArray(err.detail)) {
+          showLoginError(
+            err.detail.map(e => e.msg).join(', ')
+          );
+        } else {
+          showLoginError(err.detail || 'Signup failed.');
+        }
     }
 
     const data = await resp.json();
@@ -1189,12 +1209,23 @@ function applyLoggedInState() {
     badge.innerHTML = `
       🧑‍💼 <span style="color:var(--text2)">${user.name || user.username || 'User'}</span>
       <span style="color:var(--text3)">·</span>
-      <span style="color:var(--accent)">${user.role || 'billing_analyst'}</span>
-      <span onclick="logout()" style="
-        margin-left:4px;cursor:pointer;color:var(--text3);
-        font-size:0.8rem;padding:2px 6px;border-radius:4px;
+      <span style="color:var(--accent)">${user.role || 'Billing Analyst'}</span>
+      <button onclick="logout()" style="
+        margin-left:8px;
+        background:rgba(248,113,113,0.12);
+        border:1px solid rgba(248,113,113,0.25);
+        color:var(--danger);
+        border-radius:8px;
+        padding:0.35rem 0.7rem;
+        cursor:pointer;
+        font-size:0.72rem;
+        font-weight:600;
         transition:all 0.2s;
-      " onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text3)'" title="Logout">✕</span>
+      "
+      onmouseover="this.style.transform='translateY(-1px)'"
+      onmouseout="this.style.transform='translateY(0)'">
+        Logout
+      </button>
     `;
     navLinks.insertBefore(badge, navLinks.lastElementChild);
   }
