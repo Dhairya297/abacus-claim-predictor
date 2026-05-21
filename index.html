@@ -1033,7 +1033,7 @@ function showLoginModal(mode = 'login') {
 
       <div style="margin-bottom:1rem;">
         <label style="display:block;font-size:0.78rem;font-weight:500;color:var(--text2);margin-bottom:0.4rem;">Username</label>
-        <input id="login-username" type="text" placeholder="billing_analyst"
+        <input id="login-username" type="text" placeholder="username"
           style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;
                  color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;
                  padding:0.65rem 0.9rem;outline:none;transition:border-color 0.2s;"
@@ -1045,7 +1045,7 @@ function showLoginModal(mode = 'login') {
 
       <div style="margin-bottom:1rem;">
         <label style="display:block;font-size:0.78rem;font-weight:500;color:var(--text2);margin-bottom:0.4rem;">Password</label>
-        <input id="login-password" type="password" placeholder="••••••••"
+        <input id="login-password" type="password" placeholder="password"
           style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;
                  color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;
                  padding:0.65rem 0.9rem;outline:none;transition:border-color 0.2s;"
@@ -1349,7 +1349,7 @@ async function submitClaim(){
       return;
     }
     if (resp.status === 403) {
-      showError('Access denied. You do not have the billing_analyst role.');
+      showError('Access denied. You do not have the billing analyst role.');
       return;
     }
     if (!resp.ok) {
