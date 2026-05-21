@@ -1259,8 +1259,8 @@ async function checkAPI(){
       document.getElementById('api-badge').style.color='var(--success)';
     } else throw new Error();
   } catch{
-    document.getElementById('api-status-box').className='api-status api-offline';
-    document.getElementById('api-status-text').textContent='FastAPI offline · check EC2';
+    // document.getElementById('api-status-box').className='api-status api-offline';
+    // document.getElementById('api-status-text').textContent='FastAPI offline · check EC2';
     document.getElementById('api-badge').innerHTML='<div style="width:6px;height:6px;border-radius:50%;background:var(--danger);flex-shrink:0"></div> API Offline';
     document.getElementById('api-badge').style.color='var(--danger)';
   }
