@@ -48,3 +48,6 @@ python-dotenv
 # DOCUMENT PARSING
 # ============================================================================
 boto3
+
+bcrypt
+python-jose[cryptography]

@@ -1,32 +1,18 @@
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from pathlib import Path
-from passlib.context import CryptContext
 import json
+import bcrypt
 
 from api.auth.jwt_handler import create_access_token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-# ─────────────────────────────────────────────
-# Password hashing
-# ─────────────────────────────────────────────
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto"
-)
-
-# ─────────────────────────────────────────────
-# Load users from JSON
-# ─────────────────────────────────────────────
-USERS_FILE = Path("config/users.json")
+USERS_FILE = Path(__file__).resolve().parents[2] / "config" / "users.json"
 
 with open(USERS_FILE, "r") as f:
     USERS = json.load(f)
 
-# ─────────────────────────────────────────────
-# Request / Response Models
-# ─────────────────────────────────────────────
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -37,34 +23,27 @@ class LoginResponse(BaseModel):
     role: str
     name: str
 
-# ─────────────────────────────────────────────
-# Login Route
-# ─────────────────────────────────────────────
 @router.post("/login", response_model=LoginResponse)
 def login(req: LoginRequest):
-
     user = USERS.get(req.username)
 
-    # User not found
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password."
         )
 
-    # Verify bcrypt password
-    valid_password = pwd_context.verify(
-        req.password,
-        user["password"]
+    password_ok = bcrypt.checkpw(
+        req.password.encode("utf-8"),
+        user["password"].encode("utf-8")
     )
 
-    if not valid_password:
+    if not password_ok:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password."
         )
 
-    # Create JWT token
     token = create_access_token({
         "sub": req.username,
         "role": user["role"],
@@ -78,9 +57,6 @@ def login(req: LoginRequest):
         name=user["name"]
     )
 
-# ─────────────────────────────────────────────
-# Optional token check endpoint
-# ─────────────────────────────────────────────
 @router.get("/me")
 def me():
     return {"status": "ok"}

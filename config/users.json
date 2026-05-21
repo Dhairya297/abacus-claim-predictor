@@ -1,7 +1,8 @@
 {
   "billing_analyst": {
-    "password": "$2b$12$9lqNw7WJ7r9h1zq3QnB9k.uF2VY4A3NQ8A2sU5hN6w8XqjV0zK6aS",
+    "password": "$2b$12$mZg1f37vDQaITkjnAT5Z7udQsyF1czrOiG/NBdg/VlBeFCQPz3Sm6",
     "role": "billing_analyst",
     "name": "Billing Analyst"
   }
 }
+
