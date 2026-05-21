@@ -37,7 +37,7 @@ def log_prediction(claim_id: str, payload: dict, result: dict, username: str = "
     """Log a prediction result to S3."""
     try:
         s3 = get_s3_client()
-        key = f"logs/predictions/{datetime.utcnow().strftime('%Y/%m/%d')}/{claim_id}.json"
+        key = f"logs/predictions/{datetime.utcnow().strftime('%Y/%m/%d')}/{claim_id}_{datetime.utcnow().strftime('%H%M%S')}.json"
         body = json.dumps({
             "claim_id":  claim_id,
             "user":      username,
