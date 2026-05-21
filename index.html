@@ -1071,7 +1071,7 @@ function showLoginModal(mode = 'login') {
       </div>
       <div id="confirm-wrap" style="margin-bottom:1rem; display:${isSignup ? 'block' : 'none'};">
         <label style="display:block;font-size:0.78rem;font-weight:500;color:var(--text2);margin-bottom:0.4rem;">Confirm Password</label>
-        <input id="login-confirm-password" type="password" placeholder="••••••••"
+        <input id="login-confirm-password" type="password" placeholder="Confirm Password"
           style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;
                  color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;
                  padding:0.65rem 0.9rem;outline:none;transition:border-color 0.2s;"
@@ -1207,7 +1207,7 @@ function applyLoggedInState() {
       font-size:0.75rem;font-weight:500;color:var(--accent2);
     `;
     badge.innerHTML = `
-      🧑‍💼 <span style="color:var(--text2)">${user.name || user.username || 'User'}</span>
+      🧑‍💼 <span style="color:var(--text2)">${user.name || 'User'}</span>
       <span style="color:var(--text3)">·</span>
       <span style="color:var(--accent)">${user.role || 'Billing Analyst'}</span>
       <button onclick="logout()" style="
