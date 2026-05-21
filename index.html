@@ -1261,8 +1261,7 @@ async function checkAPI(){
     const r = await fetch(BASE_URL + '/docs', {method:'GET', signal:AbortSignal.timeout(3000)});
     if(r.ok){
       document.getElementById('api-status-box').className='';
-      document.getElementById('api-status-text').textContent='FastAPI online · 54.84.210.86:8000';
-      document.getElementById('api-badge').innerHTML='<div class="live-dot"></div> API Online';
+      document.getElementById('api-status-text').textContent='';
       document.getElementById('api-badge').style.color='var(--success)';
     } else throw new Error();
   } catch{
