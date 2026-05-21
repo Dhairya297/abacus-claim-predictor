@@ -744,7 +744,7 @@
   </div>
   <div class="nav-links">
     <div class="nav-link active" id="nav-home" onclick="showPage('home')">Home</div>
-    <div class="nav-link" id="nav-how" onclick="showPage('home'); scrollTo(0,600);">How It Works</div>
+    <div class="nav-link" id="nav-how" onclick="showPage('home'); setTimeout(() => {document.getElementById('features-section').scrollIntoView({ behavior: 'smooth' });}, 100);">How It Works</div>
     <!-- <div class="nav-link" id="nav-claim" onclick="showPage('claim')">Check Claim</div> -->
     <button class="nav-cta" onclick="showPage('claim')">⚡ Analyse Now</button>
     <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" role="button" aria-label="Toggle dark/light mode">
